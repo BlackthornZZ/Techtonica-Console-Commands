@@ -42,7 +42,7 @@ public class ConsoleCommands : BaseUnityPlugin
 		GUI.SetNextControlName("Console");
 		Input.eatKeyPressOnTextFieldFocus = false;
 		GUI.skin.textField.fontSize = 20;
-        InputText = GUI.TextField(new Rect (0,Screen.height - 50,Screen.width,30), InputText);
+        InputText = GUI.TextField(new Rect (0,Screen.height - 30,Screen.width,30), InputText);
     }
 
 	void Update()
