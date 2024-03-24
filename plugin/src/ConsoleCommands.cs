@@ -13,7 +13,7 @@ namespace ConsoleCommands;
 
 [BepInPlugin("nl.lunar.modding", MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInProcess("Techtonica.exe")]
-[BepInDependency("Tobey.UnityAudio", BepInDependency.DependencyFlags.SoftDependency)]
+//[BepInDependency("Tobey.UnityAudio", BepInDependency.DependencyFlags.SoftDependency)]
 public class ConsoleCommands : BaseUnityPlugin
 {
 	public static new ManualLogSource Logger;
@@ -41,7 +41,8 @@ public class ConsoleCommands : BaseUnityPlugin
 		if(!bIsEnabled) return;
 		GUI.SetNextControlName("Console");
 		Input.eatKeyPressOnTextFieldFocus = false;
-        InputText = GUI.TextField(new Rect(25,25,100,30), InputText);
+		GUI.skin.textField.fontSize = 20;
+        InputText = GUI.TextField(new Rect (0,Screen.height - 50,Screen.width,30), InputText);
     }
 
 	void Update()
