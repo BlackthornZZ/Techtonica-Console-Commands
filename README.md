@@ -105,6 +105,12 @@ Bind a key to a command. Keys are case sensitive. Use {arg1,arg2} for arguments 
     setsize <size> <scaleparams>
 Set the player size. Scaleparams for scaling the player parameters such as walk speed.
 
+    clear <item> <amount>
+Clear your inventory of a certain amount of an item.
+
+    setmoledimensions <x> <y> <z>
+Set the 3D size of your mole radius. Values greater than or equal to 25 are not as great.
+
 ## Disclaimer
 
 Note: NEW Games must be loaded, saved, and reloaded for mods to take effect. Existing saves will auto-apply mods. 
