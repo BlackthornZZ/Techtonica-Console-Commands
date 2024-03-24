@@ -1,0 +1,15 @@
+{
+    "conventionalCommits.scopes": [
+        "input",
+        "render",
+        "ui",
+        "player",
+        "game",
+        "readme",
+        "comfort",
+        "sound",
+        "deps",
+        "thunderstore",
+        "config"
+    ]
+}
