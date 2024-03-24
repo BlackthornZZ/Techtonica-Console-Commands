@@ -109,7 +109,7 @@ Set the player size. Scaleparams for scaling the player parameters such as walk 
 Clear your inventory of a certain amount of an item.
 
     setmoledimensions <x> <y> <z>
-Set the 3D size of your mole radius. Values greater than or equal to 25 are not as great.
+Set the 3D size of your mole radius. Values greater than or equal to 25 are not as performant.
 
 ## Disclaimer
 
