@@ -8,22 +8,33 @@ using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
 using System;
+using System.Diagnostics.Tracing;
+using UnityEngine.PlayerLoop;
 
 namespace ConsoleCommands;
 
 [BepInPlugin("nl.lunar.modding", MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInProcess("Techtonica.exe")]
 //[BepInDependency("Tobey.UnityAudio", BepInDependency.DependencyFlags.SoftDependency)]
+
+
+//TODO: SUGGESTION - "would it be possible to make the console key configurable (set another key to open/close)?"
+//TODO: SUGGESTION - Mining charge radius command
+//TODO: Open game settings menu command
 public class ConsoleCommands : BaseUnityPlugin
 {
 	public static new ManualLogSource Logger;
 	private string InputText;
 	public List<string> InputHistory = new List<string>();
 	public List<string> OutputHistory = new List<string>();
+	public int InputIndex = -1; // -1 for not looking through history
 	public bool bIsEnabled;
-	public const int MaxTotalHistory = 20;
+	public const int MaxTotalHistory = 16;
 	public static bool bHasScanOverride;
 	public static float ScanOverrideMultiplier;
+	public const bool DebugTheShitOutOfEverything=false; // :bangbang:
+
+	private GUIStyle ConsoleTextFieldStyle;
 	private void Awake()
 	{
 		Logger = base.Logger;
@@ -34,33 +45,79 @@ public class ConsoleCommands : BaseUnityPlugin
 		Logger.LogInfo("Thanks for downloading and using Techtonica Console Commands!\nThe mod has just finished initializing.");
 		Logger.LogWarning("The mod is still in development, bugs and issues may occur.");
 		this.gameObject.hideFlags = HideFlags.HideAndDontSave;
+		InitializeWarps();
+
+		// GUIStyles
+		Texture2D consoleBackground;
+		consoleBackground = new Texture2D(1, 1, TextureFormat.RGBAFloat, false); 
+    	consoleBackground.SetPixel(0, 0, new Color(0.086f, 0.086f, 0.149f, 1));
+    	consoleBackground.Apply(); // not sure if this is necessary
+
+		ConsoleTextFieldStyle = new GUIStyle(GUIStyle.none);
+		ConsoleTextFieldStyle.normal.background = consoleBackground;
+		ConsoleTextFieldStyle.fontSize = 20;
+		ConsoleTextFieldStyle.normal.textColor = Color.white;
 	}
 
  void OnGUI() 
 	{
 		if(!bIsEnabled) return;
-		GUI.SetNextControlName("Console");
+		
+		// GUI.backgroundColor = new Color(0.086f, 0.086f, 0.149f, 1);
+		// GUI.Box(new Rect (0,Screen.height - 30,Screen.width,30), ""); 
 		Input.eatKeyPressOnTextFieldFocus = false;
-		GUI.skin.textField.fontSize = 20;
-        InputText = GUI.TextField(new Rect (0,Screen.height - 30,Screen.width,30), InputText);
+
+		GUI.SetNextControlName("Console");
+        InputText = GUI.TextField(new Rect (0,Screen.height - 30,Screen.width,30), InputText, ConsoleTextFieldStyle);
+		GUI.FocusControl("Console"); // set focus on textfield
+		// Output background
+		GUI.Box(new Rect(0,Screen.height - (25*(InputHistory.Count+OutputHistory.Count)+30),(int)Screen.width/2,25*(InputHistory.Count+OutputHistory.Count)), "");
+		// Output
+		GUI.skin.label.fontSize=20;
+		GUI.Label(new Rect(0,Screen.height - (25*(InputHistory.Count+OutputHistory.Count)+30),Screen.width/2,25*(InputHistory.Count+OutputHistory.Count)), GetHistory());
     }
 
 	void Update()
     {
 		if(Player.instance == null) return; // aka: if in menu do nothing
-		if(bIsNoclipping) Player.instance.transform.position = Player.instance.cam.transform.position;
+		if(bIsNoclipping){
+			Player.instance.transform.position = Player.instance.camController.camParent.position;
+			Player.instance.transform.rotation = Player.instance.camController.camParent.rotation;
+		}
 		if(Bindings.Count > 0 && !bIsEnabled)	HandleKeyBinds();
 		if(Input.GetKeyDown(KeyCode.Slash)) ToggleConsole();
 
 		if(!bIsEnabled) return;
 
         //Detect when the Return key is pressed down
-        if(Input.GetKeyDown(KeyCode.Return) && InputText != "")
+        if(Input.GetKeyDown(KeyCode.Return) && InputText != "" && HandleCommand(InputText))
         {
-			HandleCommand(InputText);
 			UpdateHistory(InputText, false);
 			InputText=""; // clear input text so that a new command can be inputted without clearing the previous manually
+			InputIndex=-1;
         }
+
+		if(Input.GetKeyDown(KeyCode.PageUp))
+		{
+			if(InputIndex+1 < InputHistory.Count)
+			{
+				InputIndex++;
+				if(InputIndex >= InputHistory.Count) InputIndex=InputHistory.Count-1;
+				InputText=InputHistory[InputIndex];
+			}
+		}
+
+		if(Input.GetKeyDown(KeyCode.PageDown))
+		{
+			if(InputIndex-1 >= -1)
+			{
+				InputIndex--;
+				if(InputIndex >= 0) InputText=InputHistory[InputIndex];
+				else InputText="";
+			}
+		}
+
+		if(DebugTheShitOutOfEverything) Debug.Log(InputIndex.ToString());
 	}
 
 	void HandleKeyBinds()
@@ -80,11 +137,11 @@ public class ConsoleCommands : BaseUnityPlugin
 		bIsEnabled = !bIsEnabled;
 		InputHandler.instance.uiInputBlocked = bIsEnabled;
 	}
-	public void UpdateHistory(string TextToAdd, bool bIsOutput)
+	public void UpdateHistory(string TextToAdd, bool bIsOutput) // * i hate this function dearly.
 	{
 		if(!bIsOutput)
 		{
-			if(InputHistory.Count <= MaxTotalHistory/2) InputHistory.Add(TextToAdd);
+			if(InputHistory.Count <= (int)MaxTotalHistory/2) InputHistory.Add(TextToAdd);
 			else
 			{
 				InputHistory.RemoveAt(0);
@@ -93,7 +150,7 @@ public class ConsoleCommands : BaseUnityPlugin
 		}
 		else
 		{
-			if(OutputHistory.Count <= MaxTotalHistory/2) OutputHistory.Add(TextToAdd);
+			if(OutputHistory.Count <= (int)MaxTotalHistory/2) OutputHistory.Add(TextToAdd);
 			else
 			{
 				OutputHistory.RemoveAt(0);
@@ -101,14 +158,20 @@ public class ConsoleCommands : BaseUnityPlugin
 			}
 		}
 	}
-	public void HandleCommand(string UserInput)
+	public bool HandleCommand(string UserInput)
 	{
+		if(UserInput == null) return false; // This seems to happen in rare cases. Better safe than sorry!
 		string CommandName = UserInput.ToLower().Split(' ')[0];
 		List<string> args = UserInput.Split(' ').ToList<string>();
 		args.RemoveAt(0);
 		MethodInfo m = GetType().GetMethod(CommandName);
 		if(m != null) m.Invoke(this, args.ToArray());
-		else DetermineAndLogError(m, UserInput, args);
+		else {
+			UpdateHistory(UserInput, false);
+			DetermineAndLogError(m, UserInput, args);
+			return false;
+		}
+		return true;
 	}
 
 	void DetermineAndLogError(MethodInfo theMethod, string UserInput, List<string> args)
@@ -122,12 +185,16 @@ public class ConsoleCommands : BaseUnityPlugin
 	void LogCommandError(string StringToLog, bool bShouldAppearInHistory)
 	{
 		Logger.LogError(StringToLog);
+		UIManager.instance.systemLog.FlashMessage("[ERROR] "+StringToLog);
 		if(bShouldAppearInHistory) UpdateHistory(StringToLog, true);
 	}
 
-	void LogCommandOutput(string StringToLog, bool bShouldAppearInHistory) // TODO: make all commands output something at the end
+	void LogCommandOutput(string StringToLog, bool bShouldAppearInHistory) // // TODO: make all commands output something at the end (Done!)
 	{
 		Logger.LogInfo(StringToLog);
+		//SystemMessageInfo m_info = new SystemMessageInfo("[OUTPUT] "+StringToLog);
+		//UIManager.instance.systemLog.uiSettings[0].width = StringToLog.Length*4+8; //WHY
+		//UIManager.instance.systemLog.ShowMessage(m_info);
 		if(bShouldAppearInHistory) UpdateHistory(StringToLog, true);
 	}
  	public void give(string item, string amount) // // TODO: add support for all resourceinfos, not only the ones in player's inventory.
@@ -188,16 +255,12 @@ public class ConsoleCommands : BaseUnityPlugin
 	public string GetHistory()
 	{
 		string s = "";
+		bool switchbool = false;
 		for(int i = 0; i < OutputHistory.Count+InputHistory.Count; i++)
 		{
-			if(i % 2 == 1) // i is odd
-			{
-				s += "\n"+OutputHistory[(int)i/2];
-			}
-			else if(i % 2 == 0) // i is even
-			{
-				s += "\n"+InputHistory[(int)i/2];
-			}
+			if(switchbool) s += OutputHistory[(int)i/2]+Environment.NewLine;
+			else s += InputHistory[(int)i/2]+Environment.NewLine;
+			switchbool = !switchbool;
 		}
 		return s;
 	}
@@ -254,13 +317,6 @@ public class ConsoleCommands : BaseUnityPlugin
 	{
 		echo(PlayerFirstPersonController.instance.transform.position.ToString(), "info");
 	}
-
-	// * this wouldn't have been useful anyway
-	// public void noclip(string value)
-	// {
-	// 	if(!bool.TryParse(value, out bool b)) LogCommandError("Invalid bool '"+value+"'! Are you sure you typed it correctly?", true);
-	// 	bHasCollisionOverride = b;
-	// }
 	
 	public void tp(string X, string Y, string Z)
 	{
@@ -275,44 +331,129 @@ public class ConsoleCommands : BaseUnityPlugin
 		else LogCommandError("Your three vector components dont seem to be valid! ('"+X+"', '"+Y+"', '"+Z+"')", true);
 	}
 
-	public void warp(string Location)
+	public struct WarpData
 	{
-		switch(Location.ToLower())
+		public string name;
+		public Vector3 loc;
+
+		public WarpData(string name, Vector3 loc)
+		{
+			this.name = name;
+			this.loc = loc;
+		}
+ 	}
+	public List<WarpData> warps = new List<WarpData>();
+
+	private int FindWarpInList(string warpname)
+	{
+		InitializeWarps(); // better safe than sorry
+		for(int i = 0; i > warps.Count; i++)
+		{
+			if(warps[i].name == warpname)
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+	public void warp(string name)
+	{
+		switch(name.ToLower())
 		{
 			case "victor":
-				tp("138,00", "12,30", "-116,00");
+				Player.instance.transform.position = new Vector3((float)138.00, (float)12.30, (float)-116.00);
 				break;
 			case "lima":
-				tp("85,00", "-2,84", "-330,00");
+				Player.instance.transform.position = new Vector3((float)85.00, (float)-2.84, (float)-330.00);
 				break;
 			case "xray":
-				tp("-307,57", "92,95", "20,11");
+				Player.instance.transform.position = new Vector3((float)-307.57, (float)92.95, (float)20.11);
 				break;
 			case "freight":
-				tp("-153,08", "36,30", "188,50");
+				Player.instance.transform.position = new Vector3((float)-153.08, (float)36.30, (float)188.50);
 				break;
 			case "waterfall":
-				tp("-265,88", "-17,85", "-131,33");
+				Player.instance.transform.position = new Vector3((float)-265.880, (float)-17.850, (float)-131.330);
 				break;
 			default:
-				LogCommandError("Your warp, '"+Location+"', doesn't seem to exist! Check info.txt for all possible warps.", true);
-				return;
+				if(FindWarpInList(name) != -1)
+				{
+					Player.instance.transform.position = warps[FindWarpInList(name)].loc;
+					break;
+				}
+				else { LogCommandError("Your warp, '"+name+"', doesn't seem to exist! Check info.txt and warps.txt for all possible warps.", true); return;} 
 		}
-		LogCommandOutput("Teleported to "+Location+".", true);
+		LogCommandOutput("Teleported to "+name+"!", true);
+	}
+	public string WarpTXTPath
+	{
+		get
+		{
+			return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location).Replace("console_commands.dll", string.Empty)+@"\warps.txt";
+		}
+	}
+	public void setwarp(string name)
+	{
+		if(!File.Exists(WarpTXTPath)) File.WriteAllText(WarpTXTPath, "");
+		Debug.Log(WarpTXTPath);
+
+		string filetext = File.ReadAllText(WarpTXTPath);
+		if(filetext.Contains(name)) {
+			LogCommandError("That warpname is already in use. Pick another.", true);
+			return;
+		}
+		File.AppendAllText(WarpTXTPath, "NAME "+name+Environment.NewLine+"LOC "+Player.instance.transform.position.ToString()+"\n");
+		warps.Add(new WarpData(name, Player.instance.transform.position));
+		LogCommandOutput("Saved new warp '"+name+"' at "+Player.instance.transform.position.ToString(), true);
+		// Format: 
+		// NAME defaultwarp 
+		// LOC 0|0|0
 	}
 
- 	// public const string WarpTXTPath = "C:\"
-	//  public void setwarp(string name)
-	// {
-	// 	if(!File.Exists(WarpTXTPath)) File.Create(WarpTXTPath);
-	// 	string filetext = File.ReadAllText(WarpTXTPath);
-	// 	File.WriteAllText(filetext+Environment.NewLine+name+Environment.NewLine+Player.instance.transform.position, WarpTXTPath);
-	// }
+	private void InitializeWarps()
+	{
+		if(!File.Exists(WarpTXTPath)) File.WriteAllText(WarpTXTPath, "");
+		string filetext = File.ReadAllText(WarpTXTPath);
+		string[] lines = filetext.Split(Environment.NewLine);
+		WarpData w = new WarpData();
+		for(int i = 0; i > lines.Length; i++)
+		{
+			if(lines[i].Contains("NAME ")) 
+				w.name = lines[i].Replace("NAME ", string.Empty);
+			else if(lines[i].Contains("LOC ")) 
+			{
+				w.loc = stringToVec(lines[i].Replace("LOC ", string.Empty));
+				warps.AddItem(w);
+			}
+		}
+	}
+	public void delwarp(string name)
+	{
 
-	// public void delwarp(string name)
-	// {
-	// 	string filetext = File.ReadAllText(WarpTXTPath);
-	// }
+		if(!File.Exists(WarpTXTPath)) {
+			LogCommandError("warps txt not available", true);
+			return;
+		}
+		string filetext = File.ReadAllText(WarpTXTPath);
+		List<string> lines = filetext.Split(Environment.NewLine).ToList<string>();
+		for(int i = 0; i > lines.Count; i++)
+		{
+			if(lines[i].Contains("NAME "+name))
+			{
+				lines.RemoveAt(i);
+				lines.RemoveAt(i); // do it twice because of the two lines used to save a warp
+				File.WriteAllText(string.Join(Environment.NewLine, lines), WarpTXTPath);
+			}
+		}
+		LogCommandOutput("Deleted warp '"+name+"'.", true);
+	}
+
+	public Vector3 stringToVec(string s) // Thanks random person from the unity forums! Your work is much appreciated
+	{
+    	string[] temp = s.Substring (1, s.Length-2).Split (',');
+    	return new Vector3 (float.Parse(temp[0]), float.Parse(temp[1]), float.Parse(temp[2]));
+	}
+
 	public void unlock(string name, string DrawPower)
 	{
 		if(!bool.TryParse(DrawPower, out bool b))
@@ -652,6 +793,17 @@ public class ConsoleCommands : BaseUnityPlugin
 			tm.flattenMode._currentDimensions.z = z;
 			LogCommandOutput("Set dimension to "+x.ToString()+", "+y.ToString()+", "+z.ToString()+"!", true);
 		}
-		else LogCommandError("The integer you provided does not seem to be valid!", true);
+		else LogCommandError("The integer(s) you provided do(es) not seem to be valid!", true);
+	}
+
+	// public void skipdialogue()
+	// {
+	// 	SaveState.instance.queuedDialogue = new List<int>(); // no more dialogue fuck you
+	// 	SaveState.instance.mainReceiverQueuedMessages = new List<int>();
+	// }
+
+	public void gamesettings()
+	{
+
 	}
 }

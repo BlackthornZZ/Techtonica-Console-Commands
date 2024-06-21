@@ -44,15 +44,32 @@ Your game folder is likely in one of these places:
 
 ## Version Compatibility
 
-|  Mod Version  |  Game Version  |
-|:-------------:|:--------------:|
-|     v0.1.0    |     v0.3.0e    |
+| Mod Version | Game Version |
+|-------------|--------------|
+| v0.1.0      | v0.3.0e      |
+| v0.2.0      | v0.3.0e      |
 
 ## Changelog
 
 ### V0.1.0
 
 Pre-release 1.
+
+### V0.2.0
+
+Pre-release 2.
+
+Changes:
+- Fixed a nullreference exception that occured in rare cases when pressing enter while there was nothing in the console.
+- Minor changes to grammar and wording in command outputs.
+- Added setwarp
+- Added delwarp
+- Added warps.txt
+- The console should now automatically be focused.
+- Your command history is now displayed above the console.
+- You can now press page up/down to cycle through previously inputted commands.
+- Messed around with how noclip works, didn't achieve anything. If you notice anything different please let me know.
+- Inputting incorrect commands now no longer breaks the history system. (Which you couldn't notice before, anyway.)
 
 &nbsp;
 ## Usage
@@ -73,7 +90,13 @@ log a string in the console. For the logtype choose from: info, warning, error, 
 X, Y, and Z coordinates, each can also be replaced with ~ to use current player position (of that component).
 
     warp <location>
-Warp to a specific location, for example "lima", "victor", "freight", "xray", and "waterfall" (waterfall facility)
+Warp to a specific location, for example "lima", "victor", "freight", "xray", and "waterfall" (waterfall facility), or teleport to a warp previously set.
+
+    setwarp <name>
+Set a warp at current player location with a name.
+
+    delwarp <name>
+Delete a warp with name.
 
     unlock <nodename> <bShouldDrawPower>
 Unlock a techtree upgrade. Nodename is the name of the techtree node without spaces. For bshoulddrawpower false is recommended. Tip: Use "unlock all false" to quickly unlock everything! (expect A LOT of dialogue spam)
