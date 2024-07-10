@@ -19,8 +19,7 @@ namespace ConsoleCommands
 
         // Config Entries
 
-        internal static ConfigEntry<KeyboardShortcut> OpenConsoleShortcut;
-        // Change to keycode + UnityInput
+        internal static ConfigEntry<KeyCode> OpenConsoleShortcut;
 
         // Unity Functions
 
@@ -37,23 +36,22 @@ namespace ConsoleCommands
         }
 
         private void Update() {
-            if (OpenConsoleShortcut.Value.IsDown()) {
-                ConsoleGUI.ClearConsole();
-                ConsoleGUI.shouldShow = !ConsoleGUI.shouldShow;
-                ModUtils.FreeCursor(ConsoleGUI.shouldShow);
+            if (!ModUtils.hasGameLoaded) return;
+
+            ConsoleGUI.sSinceKeyPress += Time.deltaTime;
+            if (UnityInput.Current.GetKeyDown(OpenConsoleShortcut.Value)) {
+                ConsoleGUI.OpenConsole();
             }
         }
 
         private void OnGUI() {
-            if (ConsoleGUI.shouldShow) {
-                ConsoleGUI.DrawConsole();
-            }
+            ConsoleGUI.DrawConsole();
         }
 
         // Private Functions
 
         private void CreateConfigEntries() {
-            OpenConsoleShortcut = Config.Bind("General", "Open Console Shortcut", new KeyboardShortcut(KeyCode.Slash), new ConfigDescription("The key to press to open the console"));
+            OpenConsoleShortcut = Config.Bind("General", "Open Console Shortcut", KeyCode.Slash, new ConfigDescription("The key to press to open the console"));
         }
 
         private void ApplyPatches() {
