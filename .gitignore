@@ -1,4 +1,3 @@
-/plugin/obj/
-/plugin/bin/
-# /libs/
-/strip-dll/
+Properties
+bin
+obj

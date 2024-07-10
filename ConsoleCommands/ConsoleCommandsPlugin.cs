@@ -1,0 +1,63 @@
+﻿using BepInEx;
+using BepInEx.Configuration;
+using BepInEx.Logging;
+using EquinoxsModUtils;
+using HarmonyLib;
+using UnityEngine;
+
+namespace ConsoleCommands
+{
+    [BepInPlugin(MyGUID, PluginName, VersionString)]
+    public class ConsoleCommandsPlugin : BaseUnityPlugin
+    {
+        private const string MyGUID = "com.lunar.ConsoleCommands";
+        private const string PluginName = "ConsoleCommands";
+        private const string VersionString = "1.0.0";
+
+        private static readonly Harmony Harmony = new Harmony(MyGUID);
+        internal static ManualLogSource Log = new ManualLogSource(PluginName);
+
+        // Config Entries
+
+        internal static ConfigEntry<KeyboardShortcut> OpenConsoleShortcut;
+        // Change to keycode + UnityInput
+
+        // Unity Functions
+
+        private void Awake() {
+            Logger.LogInfo($"PluginName: {PluginName}, VersionString: {VersionString} is loading...");
+            Harmony.PatchAll();
+
+            ConsoleGUI.LoadImages();
+            CreateConfigEntries();
+            ApplyPatches();
+
+            Logger.LogInfo($"PluginName: {PluginName}, VersionString: {VersionString} is loaded.");
+            Log = Logger;
+        }
+
+        private void Update() {
+            if (OpenConsoleShortcut.Value.IsDown()) {
+                ConsoleGUI.ClearConsole();
+                ConsoleGUI.shouldShow = !ConsoleGUI.shouldShow;
+                ModUtils.FreeCursor(ConsoleGUI.shouldShow);
+            }
+        }
+
+        private void OnGUI() {
+            if (ConsoleGUI.shouldShow) {
+                ConsoleGUI.DrawConsole();
+            }
+        }
+
+        // Private Functions
+
+        private void CreateConfigEntries() {
+            OpenConsoleShortcut = Config.Bind("General", "Open Console Shortcut", new KeyboardShortcut(KeyCode.Slash), new ConfigDescription("The key to press to open the console"));
+        }
+
+        private void ApplyPatches() {
+
+        }
+    }
+}
