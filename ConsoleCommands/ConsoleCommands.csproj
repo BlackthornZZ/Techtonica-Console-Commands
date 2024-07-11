@@ -74,6 +74,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command.cs" />
+    <Compile Include="CommandManager.cs" />
+    <Compile Include="Commands\GPS.cs" />
+    <Compile Include="Commands\Warp.cs" />
     <Compile Include="ConsoleCommandsPlugin.cs" />
     <Compile Include="ConsoleGUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
