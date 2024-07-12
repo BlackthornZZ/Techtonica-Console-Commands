@@ -31,6 +31,10 @@ namespace ConsoleCommands
             CreateConfigEntries();
             ApplyPatches();
 
+            CommandManager.AddCommand(new Command() {
+                
+            });
+
             Logger.LogInfo($"PluginName: {PluginName}, VersionString: {VersionString} is loaded.");
             Log = Logger;
         }

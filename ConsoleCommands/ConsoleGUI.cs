@@ -52,7 +52,7 @@ namespace ConsoleCommands
             if (!initialisedStyles) InitialiseStyles();
 
             if (Event.current.keyCode == KeyCode.Return) {
-                // Process Command
+                CommandManager.ParseAndExecute(userInput);
                 CloseConsole();
             }
 
