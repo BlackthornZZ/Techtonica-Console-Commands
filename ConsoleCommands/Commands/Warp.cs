@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ConsoleCommands
 {
@@ -41,12 +42,13 @@ namespace ConsoleCommands
             },
             Validate = () => {
                 if (warp.argumentValues.Count() != 1 && warp.argumentValues.Count() != 3) {
-                    warp.validationError = "Invalid arguments";
+                    warp.validationError = $"Invalid number of arguments: {warp.NumProvidedArguments()}";
                     return false;
                 }
 
                 if (warp.NumProvidedArguments() == 1) {
-                    // ToDo: Check saved warp points
+                    string warpPointName = warp.argumentValues[0];
+                    return WarpManager.GetWarpPoint(warpPointName, out Vector3 point, out warp.validationError);
                 }
 
                 else if (warp.NumProvidedArguments() == 3) {
@@ -61,16 +63,19 @@ namespace ConsoleCommands
                 return true;
             },
             Execute = () => {
-                if(warp.NumProvidedArguments() == 1) {
-                    // ToDo: Get Coords From Dict
+                if (warp.NumProvidedArguments() == 1) {
+                    string warpPointName = warp.argumentValues[0];
+                    if (WarpManager.GetWarpPoint(warpPointName, out Vector3 point, out warp.validationError)) {
+                        Player.instance.transform.position = point;
+                    }
                 }
                 else {
                     float x = float.Parse(warp.argumentValues[0]);
                     float y = float.Parse(warp.argumentValues[1]);
                     float z = float.Parse(warp.argumentValues[2]);
-                    Player.instance.transform.position = new UnityEngine.Vector3(x, y, z);
+                    Player.instance.transform.position = new Vector3(x, y, z);
                 }
             }
-        }
+        };
     }
 }

@@ -47,6 +47,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\SteamLibrary\steamapps\common\Techtonica\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
+    <Reference Include="EMUAdditions">
+      <HintPath>..\..\..\..\..\..\SteamLibrary\steamapps\common\Techtonica\BepInEx\plugins\EMUAdditions\EMUAdditions.dll</HintPath>
+    </Reference>
     <Reference Include="EquinoxsDebuggingTools">
       <HintPath>..\..\..\..\..\..\..\SteamLibrary\steamapps\common\Techtonica\BepInEx\plugins\EquinoxsDebuggingTools\EquinoxsDebuggingTools.dll</HintPath>
     </Reference>
@@ -80,11 +83,14 @@
   <ItemGroup>
     <Compile Include="Command.cs" />
     <Compile Include="CommandManager.cs" />
+    <Compile Include="Commands\DeleteWarpPoint.cs" />
     <Compile Include="Commands\GPS.cs" />
+    <Compile Include="Commands\SaveWarpPoint.cs" />
     <Compile Include="Commands\Warp.cs" />
     <Compile Include="ConsoleCommandsPlugin.cs" />
     <Compile Include="ConsoleGUI.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WarpManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Patches\" />

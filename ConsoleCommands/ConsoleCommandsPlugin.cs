@@ -1,8 +1,10 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
+using EMU.Additions;
 using EquinoxsModUtils;
 using HarmonyLib;
+using System;
 using UnityEngine;
 
 namespace ConsoleCommands
@@ -27,13 +29,14 @@ namespace ConsoleCommands
             Logger.LogInfo($"PluginName: {PluginName}, VersionString: {VersionString} is loading...");
             Harmony.PatchAll();
 
-            ConsoleGUI.LoadImages();
             CreateConfigEntries();
             ApplyPatches();
 
-            CommandManager.AddCommand(new Command() {
-                
-            });
+            EMUAdditions.CustomData.Add(0, "WarpPoints", "");
+            ModUtils.SaveStateLoaded += OnSaveStateLoaded;
+
+            ConsoleGUI.LoadImages();
+            CommandManager.LoadDefaultCommands();
 
             Logger.LogInfo($"PluginName: {PluginName}, VersionString: {VersionString} is loaded.");
             Log = Logger;
@@ -50,6 +53,12 @@ namespace ConsoleCommands
 
         private void OnGUI() {
             ConsoleGUI.DrawConsole();
+        }
+
+        // Events
+
+        private void OnSaveStateLoaded(object sender, EventArgs e) {
+            WarpManager.LoadData();
         }
 
         // Private Functions

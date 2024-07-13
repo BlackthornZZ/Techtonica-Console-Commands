@@ -28,7 +28,7 @@ namespace ConsoleCommands
         private static GUIStyle consoleLeftStyle;
         private static GUIStyle consoleCenterStyle; 
         private static GUIStyle consoleRightStyle;
-        private static GUIStyle textBoxStyle; // bigger, white font, center left, left margin 
+        private static GUIStyle textBoxStyle;
 
         // Internal Functions
 
@@ -52,7 +52,7 @@ namespace ConsoleCommands
             if (!initialisedStyles) InitialiseStyles();
 
             if (Event.current.keyCode == KeyCode.Return) {
-                CommandManager.ParseAndExecute(userInput);
+                CommandManager.ParseAndExecute(userInput.ToLower());
                 CloseConsole();
             }
 

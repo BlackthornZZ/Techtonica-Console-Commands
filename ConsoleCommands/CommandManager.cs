@@ -14,7 +14,7 @@ namespace ConsoleCommands
 
         // Public Functions
 
-        public static void AddCommand(Command command) {
+        public static void AddCommand(ref Command command) {
             if (commands.ContainsKey(command.name)) {
                 ConsoleCommandsPlugin.Log.LogError($"Command name '{command.name}' is already taken");
                 return;
@@ -39,7 +39,7 @@ namespace ConsoleCommands
                 return;
             }
 
-            parts.RemoveAt(0);
+            parts = parts.RemoveAt(0);
             Command command = commands[name];
             command.argumentValues = parts;
 
@@ -53,7 +53,10 @@ namespace ConsoleCommands
         }
 
         internal static void LoadDefaultCommands() {
-            AddCommand(Commands.gps);
+            AddCommand(ref Commands.gps);
+            AddCommand(ref Commands.warp);
+            AddCommand(ref Commands.saveWarpPoint);
+            AddCommand(ref Commands.deleteWarpPoint);
         }
 
         internal static void Notify(string message) {
