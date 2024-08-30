@@ -10,27 +10,19 @@ namespace ConsoleCommands
 {
     internal static partial class Commands {
         internal static Command saveWarpPoint = new Command() {
-            name = "savewarppoint",
+            name = "Save Warp Point",
             description = "Saves your current location as a Warp Point.",
             examples = new List<string>() { "SaveWarpPoint BiobrickFactory" },
             arguments = new List<Argument>() {
                 new Argument() {
                     name = "Name",
                     description = "The name of your Warp Point",
-                    optional = false,
-                    type = typeof(string)
+                    type = typeof(string),
+                    optional = false
                 }
             },
             Validate = () => {
-                if(saveWarpPoint.NumProvidedArguments() == 0) {
-                    saveWarpPoint.validationError = "You must provide a name for the Warp Point";
-                    return false;
-                }
-
-                if(saveWarpPoint.NumProvidedArguments() > 1) {
-                    saveWarpPoint.validationError = "Name cannot contain spaces";
-                    return false;
-                }
+                if (!saveWarpPoint.ValidateNumProvidedArguments(1)) return false;
 
                 string name = saveWarpPoint.argumentValues[0];
                 if (name.Contains("|")) {
@@ -43,7 +35,12 @@ namespace ConsoleCommands
                     return false;
                 }
 
-                if (WarpManager.GetWarpPoint(name, out Vector3 point, out string error)) {
+                if (name.Contains("\\")) {
+                    saveWarpPoint.validationError = "You cannot have a \\ character in the Warp Point's name";
+                    return false;
+                }
+
+                if (WarpManager.GetWarpPoint(name, out _, out _)) {
                     saveWarpPoint.validationError = $"A warp point named '{name}' already exists. Use 'DeleteWarpPoint {name}' to delete it.";
                     return false;
                 }

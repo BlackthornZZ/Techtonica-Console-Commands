@@ -52,7 +52,10 @@ namespace ConsoleCommands
             if (!initialisedStyles) InitialiseStyles();
 
             if (Event.current.keyCode == KeyCode.Return) {
-                CommandManager.ParseAndExecute(userInput.ToLower());
+                if (!string.IsNullOrEmpty(userInput)) {
+                    CommandManager.ParseAndExecute(userInput.ToLower());
+                }
+
                 CloseConsole();
             }
 
@@ -64,7 +67,7 @@ namespace ConsoleCommands
 
             GUI.SetNextControlName("Console");
             userInput = GUI.TextField(new Rect(20, Screen.height - 50, Screen.width - 30, 40), userInput, textBoxStyle);
-            if (userInput != "/" && userInput.EndsWith("/")) {
+            if (userInput.EndsWith("/")) {
                 CloseConsole();
             }
             

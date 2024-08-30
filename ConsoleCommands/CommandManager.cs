@@ -1,4 +1,5 @@
-﻿using FluffyUnderware.DevTools.Extensions;
+﻿using EquinoxsDebuggingTools;
+using FluffyUnderware.DevTools.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,8 +16,9 @@ namespace ConsoleCommands
         // Public Functions
 
         public static void AddCommand(ref Command command) {
-            if (commands.ContainsKey(command.name)) {
-                ConsoleCommandsPlugin.Log.LogError($"Command name '{command.name}' is already taken");
+            string lowerName = command.name.Replace(" ", "").ToLower();
+            if (commands.ContainsKey(lowerName)) {
+                ConsoleCommandsPlugin.Log.LogError($"Command name '{lowerName}' is already taken");
                 return;
             }
 
@@ -25,7 +27,7 @@ namespace ConsoleCommands
                 return;
             }
 
-            commands.Add(command.name, command);
+            commands.Add(lowerName, command);
         }
 
         internal static void ParseAndExecute(string userInput) {
@@ -43,7 +45,7 @@ namespace ConsoleCommands
             Command command = commands[name];
             command.argumentValues = parts;
 
-            if (command.HasArguments() && !command.Validate()) {
+            if (!command.Validate()) {
                 string error = string.IsNullOrEmpty(command.validationError) ? "Command has invalid arguments" : command.validationError;
                 Notify(error);
                 return;
@@ -53,7 +55,26 @@ namespace ConsoleCommands
         }
 
         internal static void LoadDefaultCommands() {
+            AddCommand(ref Commands.bind);
+            AddCommand(ref Commands.echo);
+            AddCommand(ref Commands.gameSpeed);
             AddCommand(ref Commands.gps);
+            AddCommand(ref Commands.instamole);
+            AddCommand(ref Commands.openSesame);
+            AddCommand(ref Commands.quit);
+            AddCommand(ref Commands.setExplosiveSize);
+            AddCommand(ref Commands.setMoleDimensions);
+            AddCommand(ref Commands.setPlayerParam);
+            AddCommand(ref Commands.setSize);
+            AddCommand(ref Commands.unlock);
+            AddCommand(ref Commands.weightless);
+
+            AddCommand(ref Commands.freeCam);
+            AddCommand(ref Commands.noClip);
+
+            AddCommand(ref Commands.give);
+            AddCommand(ref Commands.remove);
+
             AddCommand(ref Commands.warp);
             AddCommand(ref Commands.saveWarpPoint);
             AddCommand(ref Commands.deleteWarpPoint);
@@ -61,6 +82,7 @@ namespace ConsoleCommands
 
         internal static void Notify(string message) {
             UIManager.instance.systemLog.FlashMessage(new CustomNotification(message));
+            EDT.Log("Command Notifications", message);
         }
     }
 

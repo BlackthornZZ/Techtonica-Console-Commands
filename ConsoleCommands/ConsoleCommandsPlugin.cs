@@ -1,11 +1,12 @@
 ﻿using BepInEx;
 using BepInEx.Configuration;
 using BepInEx.Logging;
-using EMU.Additions;
+using EquinoxsModUtils.Additions;
 using EquinoxsModUtils;
 using HarmonyLib;
 using System;
 using UnityEngine;
+using ConsoleCommands.Patches;
 
 namespace ConsoleCommands
 {
@@ -18,6 +19,8 @@ namespace ConsoleCommands
 
         private static readonly Harmony Harmony = new Harmony(MyGUID);
         internal static ManualLogSource Log = new ManualLogSource(PluginName);
+
+        internal static bool quitOnSaveFinished = false;
 
         // Config Entries
 
@@ -33,10 +36,15 @@ namespace ConsoleCommands
             ApplyPatches();
 
             EMUAdditions.CustomData.Add(0, "WarpPoints", "");
+            ModUtils.GameDefinesLoaded += OnGameDefinesLoaded;
             ModUtils.SaveStateLoaded += OnSaveStateLoaded;
+            ModUtils.GameSaved += OnGameSaved;
 
             ConsoleGUI.LoadImages();
             CommandManager.LoadDefaultCommands();
+            Commands.InitialiseKeyCodeMap();
+            Commands.LoadBoundCommands();
+
 
             Logger.LogInfo($"PluginName: {PluginName}, VersionString: {VersionString} is loaded.");
             Log = Logger;
@@ -49,6 +57,13 @@ namespace ConsoleCommands
             if (UnityInput.Current.GetKeyDown(OpenConsoleShortcut.Value)) {
                 ConsoleGUI.OpenConsole();
             }
+
+            if (GlobalData.noClipEnabled) {
+                Player.instance.transform.position = Player.instance.camController.camParent.position;
+                Player.instance.transform.rotation = Player.instance.camController.camParent.rotation;
+            }
+
+            Commands.ExecuteBoundCommands();
         }
 
         private void OnGUI() {
@@ -57,8 +72,25 @@ namespace ConsoleCommands
 
         // Events
 
+        private void OnGameDefinesLoaded(object sender, EventArgs e) {
+            Commands.InitialiseItemsCache();
+            Commands.InitialiseUnlocksCache();
+        }
+
         private void OnSaveStateLoaded(object sender, EventArgs e) {
             WarpManager.LoadData();
+            CommandSettings.Load();
+            CommandSettings.Apply();
+
+            Player.instance.cheats.disableEncumbrance = CommandSettings.weightless;
+        }
+
+        private void OnGameSaved(object sender, EventArgs e) {
+            //CommandSettings.Save();
+
+            if (quitOnSaveFinished) {
+                Application.Quit();
+            }
         }
 
         // Private Functions
@@ -68,7 +100,9 @@ namespace ConsoleCommands
         }
 
         private void ApplyPatches() {
-
+            Harmony.CreateAndPatchAll(typeof(InstaMolePatch));
+            Harmony.CreateAndPatchAll(typeof(OpenSesamePatch));
+            Harmony.CreateAndPatchAll(typeof(ScannableDataPatch));
         }
     }
 }

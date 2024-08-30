@@ -9,7 +9,7 @@ namespace ConsoleCommands
 {
     internal static partial class Commands {
         internal static Command warp = new Command() {
-            name = "warp",
+            name = "Warp",
             description = "Teleports you to the provided coordinates / warp point",
             examples = new List<string>() {
                 "warp 100 10 -250",
@@ -18,47 +18,40 @@ namespace ConsoleCommands
             arguments = new List<Argument>() {
                 new Argument() {
                     name = "x",
-                    type = typeof(float),
                     description = "X (east/west) coordinate of warp point",
+                    type = typeof(float),
                     optional = true,
                 },
                 new Argument() {
                     name = "y",
-                    type = typeof(float),
                     description = "Y (up/down) coordinate of warp point",
+                    type = typeof(float),
                     optional = true,
                 },
                 new Argument() {
                     name = "z",
-                    type = typeof(float),
                     description = "Z (north/south) coordinate of warp point",
+                    type = typeof(float),
                     optional = true,
                 },
                 new Argument() {
-                    name = "warp point",
+                    name = "Warp Point",
+                    description = "Name of saved warp point (converted to lower case)",
                     type = typeof(string),
-                    description = "Name of saved warp point"
+                    optional = true,
                 }
             },
             Validate = () => {
-                if (warp.argumentValues.Count() != 1 && warp.argumentValues.Count() != 3) {
-                    warp.validationError = $"Invalid number of arguments: {warp.NumProvidedArguments()}";
-                    return false;
-                }
+                if (!warp.ValidateNumProvidedArguments(new List<int>() { 1, 3 })) return false;
 
                 if (warp.NumProvidedArguments() == 1) {
                     string warpPointName = warp.argumentValues[0];
                     return WarpManager.GetWarpPoint(warpPointName, out Vector3 point, out warp.validationError);
                 }
 
-                else if (warp.NumProvidedArguments() == 3) {
-                    float x, y, z;
-                    if (!float.TryParse(warp.argumentValues[0], out x)) return false;
-                    if (!float.TryParse(warp.argumentValues[1], out y)) return false;
-                    if (!float.TryParse(warp.argumentValues[2], out z)) return false;
-
-                    // ToDo: Check if x, y, z in bounds of map
-                }
+                if (!warp.ValidateFloatArgument(0, -388, 478)) return false;
+                if (!warp.ValidateFloatArgument(1, -117, 175)) return false;
+                if (!warp.ValidateFloatArgument(2, -538, 328)) return false;
 
                 return true;
             },

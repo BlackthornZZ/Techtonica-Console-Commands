@@ -56,6 +56,9 @@
     <Reference Include="EquinoxsModUtils">
       <HintPath>..\..\..\..\..\..\..\SteamLibrary\steamapps\common\Techtonica\BepInEx\plugins\EquinoxsModUtils\EquinoxsModUtils.dll</HintPath>
     </Reference>
+    <Reference Include="Mirror">
+      <HintPath>..\..\..\..\..\..\SteamLibrary\steamapps\common\Techtonica\Techtonica_Data\Managed\Mirror.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -83,18 +86,36 @@
   <ItemGroup>
     <Compile Include="Command.cs" />
     <Compile Include="CommandManager.cs" />
+    <Compile Include="CommandSettings.cs" />
+    <Compile Include="Commands\Bind.cs" />
+    <Compile Include="Commands\FreeCam.cs" />
     <Compile Include="Commands\DeleteWarpPoint.cs" />
+    <Compile Include="Commands\Echo.cs" />
+    <Compile Include="Commands\GameSpeed.cs" />
+    <Compile Include="Commands\Give.cs" />
     <Compile Include="Commands\GPS.cs" />
+    <Compile Include="Commands\InstaMole.cs" />
+    <Compile Include="Commands\NoClip.cs" />
+    <Compile Include="Commands\OpenSesame.cs" />
+    <Compile Include="Commands\Quit.cs" />
+    <Compile Include="Commands\Remove.cs" />
     <Compile Include="Commands\SaveWarpPoint.cs" />
+    <Compile Include="Commands\SetExplosiveSize.cs" />
+    <Compile Include="Commands\SetMoleDimensions.cs" />
+    <Compile Include="Commands\SetPlayerParams.cs" />
+    <Compile Include="Commands\SetSize.cs" />
+    <Compile Include="Commands\Unlock.cs" />
     <Compile Include="Commands\Warp.cs" />
+    <Compile Include="Commands\Weightless.cs" />
     <Compile Include="ConsoleCommandsPlugin.cs" />
     <Compile Include="ConsoleGUI.cs" />
+    <Compile Include="Patches\InstaMolePatch.cs" />
+    <Compile Include="Patches\OpenSesamePatch.cs" />
+    <Compile Include="Patches\ScannableDataPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WarpManager.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Patches\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <EmbeddedResource Include="Images\Center.png" />
     <EmbeddedResource Include="Images\Left.png" />
