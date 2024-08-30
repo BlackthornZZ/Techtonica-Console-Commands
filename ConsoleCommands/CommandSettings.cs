@@ -83,14 +83,14 @@ namespace ConsoleCommands
         }
 
         internal static void Apply() {
-            Player.instance.fpcontroller.maxWalkSpeed = CommandSettings.maxWalkSpeed;
-            Player.instance.fpcontroller.maxRunSpeed = CommandSettings.maxRunSpeed;
-            Player.instance.fpcontroller.maxFlySpeed = CommandSettings.maxFlySpeed;
-            Player.instance.fpcontroller.jumpSpeed = CommandSettings.jumpSpeed;
-            Player.instance.fpcontroller.gravity = CommandSettings.gravity;
+            Player.instance.fpcontroller.maxWalkSpeed = maxWalkSpeed;
+            Player.instance.fpcontroller.maxRunSpeed = maxRunSpeed;
+            Player.instance.fpcontroller.maxFlySpeed = maxFlySpeed;
+            Player.instance.fpcontroller.jumpSpeed = jumpSpeed;
+            Player.instance.fpcontroller.gravity = gravity;
 
-            ModUtils.SetPrivateField("_stiltHeight", Player.instance.equipment.hoverPack, CommandSettings.maxFlyHeight);
-            ModUtils.SetPrivateField("_hookSpeed", Player.instance.equipment.railRunner, CommandSettings.railRunnerSpeed);
+            ModUtils.SetPrivateField("_stiltHeight", Player.instance.equipment.hoverPack, maxFlyHeight);
+            ModUtils.SetPrivateField("_hookSpeed", Player.instance.equipment.railRunner, railRunnerSpeed);
         }
     }
 }

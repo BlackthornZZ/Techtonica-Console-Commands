@@ -30,6 +30,10 @@ namespace ConsoleCommands
             commands.Add(lowerName, command);
         }
 
+        internal static List<string> GetNames() {
+            return commands.Keys.ToList();
+        }
+
         internal static void ParseAndExecute(string userInput) {
             if (string.IsNullOrEmpty(userInput)) return;
 
