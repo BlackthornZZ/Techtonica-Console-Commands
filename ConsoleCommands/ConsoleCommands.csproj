@@ -113,17 +113,35 @@
     <Compile Include="Commands\Weightless.cs" />
     <Compile Include="ConsoleCommandsPlugin.cs" />
     <Compile Include="ConsoleGUI.cs" />
+    <Compile Include="Images.cs" />
     <Compile Include="Patches\InstaMolePatch.cs" />
     <Compile Include="Patches\OpenSesamePatch.cs" />
     <Compile Include="Patches\ScannableDataPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WarpManager.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Images\HelpBox\BottomLeft.png" />
+    <EmbeddedResource Include="Images\HelpBox\BottomRight.png" />
+    <EmbeddedResource Include="Images\HelpBox\Horizontal.png" />
+    <EmbeddedResource Include="Images\HelpBox\TopLeft.png" />
+    <EmbeddedResource Include="Images\HelpBox\TopRight.png" />
+    <EmbeddedResource Include="Images\HelpBox\Vertical.png" />
+  </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Images\Center.png" />
     <EmbeddedResource Include="Images\Left.png" />
     <EmbeddedResource Include="Images\Right.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Images\HelpBox\Bottom.png" />
+    <EmbeddedResource Include="Images\HelpBox\Center.png" />
+    <EmbeddedResource Include="Images\HelpBox\Left.png" />
+    <EmbeddedResource Include="Images\HelpBox\Right.png" />
+    <EmbeddedResource Include="Images\HelpBox\Top.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Images\HelpBox\OrangePixel.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

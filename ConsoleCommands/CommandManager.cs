@@ -30,6 +30,10 @@ namespace ConsoleCommands
             commands.Add(lowerName, command);
         }
 
+        internal static bool TryGetCommand(string name, out Command command) {
+            return commands.TryGetValue(name, out command);
+        }
+
         internal static List<string> GetNames() {
             return commands.Keys.ToList();
         }
