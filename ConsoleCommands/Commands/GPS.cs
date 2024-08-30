@@ -8,9 +8,12 @@ namespace ConsoleCommands
 {
     internal static partial class Commands {
         internal static Command gps = new Command() {
-            name = "gps",
+            name = "GPS",
             description = "Triggers a notification with your current position",
-            examples = new List<string>() { "gps" },
+            examples = new List<string>() { 
+                "gps",
+                "GPS"
+            },
             Execute = () => {
                 CommandManager.Notify(Player.instance.transform.position.ToString());
             }

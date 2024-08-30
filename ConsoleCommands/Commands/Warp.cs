@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ConsoleCommands
 {
     internal static partial class Commands {
         internal static Command warp = new Command() {
-            name = "warp",
+            name = "Warp",
             description = "Teleports you to the provided coordinates / warp point",
             examples = new List<string>() {
                 "warp 100 10 -250",
@@ -17,60 +18,57 @@ namespace ConsoleCommands
             arguments = new List<Argument>() {
                 new Argument() {
                     name = "x",
-                    type = typeof(float),
                     description = "X (east/west) coordinate of warp point",
+                    type = typeof(float),
                     optional = true,
                 },
                 new Argument() {
                     name = "y",
-                    type = typeof(float),
                     description = "Y (up/down) coordinate of warp point",
+                    type = typeof(float),
                     optional = true,
                 },
                 new Argument() {
                     name = "z",
-                    type = typeof(float),
                     description = "Z (north/south) coordinate of warp point",
+                    type = typeof(float),
                     optional = true,
                 },
                 new Argument() {
-                    name = "warp point",
+                    name = "Warp Point",
+                    description = "Name of saved warp point (converted to lower case)",
                     type = typeof(string),
-                    description = "Name of saved warp point"
+                    optional = true,
                 }
             },
             Validate = () => {
-                if (warp.argumentValues.Count() != 1 && warp.argumentValues.Count() != 3) {
-                    warp.validationError = "Invalid arguments";
-                    return false;
-                }
+                if (!warp.ValidateNumProvidedArguments(new List<int>() { 1, 3 })) return false;
 
                 if (warp.NumProvidedArguments() == 1) {
-                    // ToDo: Check saved warp points
+                    string warpPointName = warp.argumentValues[0];
+                    return WarpManager.GetWarpPoint(warpPointName, out Vector3 point, out warp.validationError);
                 }
 
-                else if (warp.NumProvidedArguments() == 3) {
-                    float x, y, z;
-                    if (!float.TryParse(warp.argumentValues[0], out x)) return false;
-                    if (!float.TryParse(warp.argumentValues[1], out y)) return false;
-                    if (!float.TryParse(warp.argumentValues[2], out z)) return false;
-
-                    // ToDo: Check if x, y, z in bounds of map
-                }
+                if (!warp.ValidateFloatArgument(0, -388, 478)) return false;
+                if (!warp.ValidateFloatArgument(1, -117, 175)) return false;
+                if (!warp.ValidateFloatArgument(2, -538, 328)) return false;
 
                 return true;
             },
             Execute = () => {
-                if(warp.NumProvidedArguments() == 1) {
-                    // ToDo: Get Coords From Dict
+                if (warp.NumProvidedArguments() == 1) {
+                    string warpPointName = warp.argumentValues[0];
+                    if (WarpManager.GetWarpPoint(warpPointName, out Vector3 point, out warp.validationError)) {
+                        Player.instance.transform.position = point;
+                    }
                 }
                 else {
                     float x = float.Parse(warp.argumentValues[0]);
                     float y = float.Parse(warp.argumentValues[1]);
                     float z = float.Parse(warp.argumentValues[2]);
-                    Player.instance.transform.position = new UnityEngine.Vector3(x, y, z);
+                    Player.instance.transform.position = new Vector3(x, y, z);
                 }
             }
-        }
+        };
     }
 }
