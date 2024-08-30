@@ -67,6 +67,7 @@ namespace ConsoleCommands
         }
 
         private void OnGUI() {
+            if (!Images.initialised) Images.InitialiseStyles();
             ConsoleGUI.DrawConsole();
         }
 
