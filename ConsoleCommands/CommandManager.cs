@@ -92,6 +92,20 @@ namespace ConsoleCommands
             UIManager.instance.systemLog.FlashMessage(new CustomNotification(message));
             EDT.Log("Command Notifications", message);
         }
+
+        internal static void LogDocumentation() {
+            List<string> commandDocs = new List<string>();
+            List<string> contentsEntries = new List<string>();
+
+            foreach(Command command in commands.Values) {
+                commandDocs.Add(command.GenerateDocumentation());
+                contentsEntries.Add($"- [{command.name}](#{command.name.ToLower().Replace(" ", "-")})");
+            }
+
+            string contents = string.Join("\n", contentsEntries);
+            string documentation = $"### Commands\n\n{contents}\n\n{string.Join("\n\n", commandDocs)}";
+            ConsoleCommandsPlugin.Log.LogInfo($"\n\n{documentation}\n\n");
+        }
     }
 
     public class CustomNotification : SystemMessageInfo {
