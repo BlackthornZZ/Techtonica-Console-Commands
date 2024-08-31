@@ -24,6 +24,10 @@ namespace ConsoleCommands
             }
 
             warpPoints.Add(name, point);
+
+            Commands.warp.arguments[3].options = GetWarpPointNames();
+            Commands.deleteWarpPoint.arguments[0].options = GetWarpPointNames();
+
             SaveData();
             return true;
         }
@@ -39,6 +43,10 @@ namespace ConsoleCommands
 
             point = warpPoints[name];
             return true;
+        }
+
+        internal static List<string> GetWarpPointNames() {
+            return warpPoints.Keys.ToList();
         }
 
         internal static bool DeleteWarpPoint(string name, out string error) {

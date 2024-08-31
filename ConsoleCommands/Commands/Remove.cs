@@ -33,12 +33,7 @@ namespace ConsoleCommands
             },
             Validate = () => {
                 if (!remove.ValidateNumProvidedArguments(1, 2)) return false;
-
-                string itemName = FormatItemName(remove.argumentValues[0]);
-                if(itemName != "all" && !itemsCache.ContainsKey(itemName)) { // See Give.cs for itemsCache
-                    remove.validationError = $"Unknown item: '{itemName}'";
-                    return false;
-                }
+                if (!remove.ValidateOptionsBasedArgument(0)) return false;
 
                 // Don't check the count argument if it wasn't provided or if it's "max"
                 if (remove.NumProvidedArguments() == 1 || remove.argumentValues[1] == "max") return true;

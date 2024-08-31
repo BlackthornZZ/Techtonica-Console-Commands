@@ -39,11 +39,7 @@ namespace ConsoleCommands
             },
             Validate = () => {
                 if (!bind.ValidateNumProvidedArguments(2, int.MaxValue)) return false;
-
-                if (!keyCodeMap.TryGetValue(bind.argumentValues[0], out _)) {
-                    bind.validationError = $"Invalid KeyCode argument: {bind.argumentValues[0]}";
-                    return false;
-                }
+                if (!bind.ValidateOptionsBasedArgument(0)) return false;
 
                 return true;
             },
@@ -62,6 +58,8 @@ namespace ConsoleCommands
                 string lowerName = key.ToString().Replace(" ", "").ToLower();
                 keyCodeMap[lowerName] = key;
             }
+
+            bind.arguments[0].options = keyCodeMap.Keys.ToList();
         }
 
         private static float sSinceCommandExecute = 0f;

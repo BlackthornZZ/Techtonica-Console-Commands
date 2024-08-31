@@ -199,7 +199,7 @@ namespace ConsoleCommands
 
             helpTextStyle = new GUIStyle() {
                 fontSize = 16,
-                font = Font.CreateDynamicFontFromOSFont("Roboto", 16),
+                //font = Font.CreateDynamicFontFromOSFont("Roboto", 16),
                 alignment = TextAnchor.UpperLeft,
                 normal = {
                     textColor = Color.white,
@@ -223,7 +223,15 @@ namespace ConsoleCommands
         private static string GetHelpContentForCommand(Command command) {
             string content = $"{command.description}\n\nArguments:\n\n";
             foreach (Argument argument in command.arguments) {
-                content += $"• {argument.name}\n  • Description: {argument.description}\n  • Type: {GetPrettyType(argument.type)}\n  • Optional: {argument.optional}\n\n";
+                content += $"• {argument.name}\n  • Description: {argument.description}\n";
+                
+                if (argument.options.Count > 0) {
+                    bool joinOptions = command.name == "give" || command.name == "remove" || command.name == "unlock";
+                    string options = joinOptions ? string.Join(", ", argument.options) : "Too many to list, check mod page for full list";
+                    content += $"  • Options: {options}\n";
+                }
+                    
+                content += $"  • Type: {GetPrettyType(argument.type)}\n  • Optional: {argument.optional}\n\n";
             }
 
             if (command.examples.Count != 0) {
