@@ -3,6 +3,7 @@ using EquinoxsDebuggingTools;
 using EquinoxsModUtils;
 using GameAnalyticsSDK;
 using Rewired.UI.ControlMapper;
+using RootMotion.Demos;
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
@@ -99,6 +100,7 @@ namespace ConsoleCommands
             }
 
             DrawAutoCompleteLabel();
+            DrawOptionAutoCompleteLabel();
 
             if(userInput.Contains(" ") && CommandManager.TryGetCommand(userInput.Split(' ').First(), out Command command)) {
                 DrawHelpPanelBackground(command);
@@ -130,6 +132,26 @@ namespace ConsoleCommands
             {
                 DrawHelpPanelBackground(command);
                 DrawHelpPanelContent(command);
+            }
+        }
+
+        internal static void DrawOptionAutoCompleteLabel() {
+            if (!ShouldShowOptionAutoComplete(out Argument argument, out string argumentInput)) return;
+
+            List<string> results = argument.options.Where(name => name.StartsWith(argumentInput)).ToList();
+            if (results.Count == 0) return;
+            results = results.OrderBy(name => name.Length).ToList();
+            string topResult = results.First();
+            string missing = topResult.Replace(argumentInput, "");
+
+            textBoxStyle.CalcMinMaxWidth(new GUIContent(userInput), out float minWidth, out _);
+            float xPos = 20 + minWidth;
+
+            GUI.Label(new Rect(xPos, Screen.height - 50, Screen.width - 30 - minWidth, 40), missing, autoCompleteLabelStyle);
+
+            if (Event.current.keyCode == KeyCode.Tab) {
+                autoComplete = userInput + missing;
+                userInput = "";
             }
         }
 
@@ -254,6 +276,26 @@ namespace ConsoleCommands
             if (type == typeof(KeyCode)) return "Key Code";
 
             return type.ToString();
+        }
+
+        private static bool ShouldShowOptionAutoComplete(out Argument argument, out string argumentInput) {
+            argument = null;
+            argumentInput = "";
+            
+            if (!userInput.Contains(" ")) return false;
+            string[] parts = userInput.Split(' ');
+            if (parts.Length < 2) return false;
+            if (string.IsNullOrEmpty(parts.Last())) return false;
+
+            argumentInput = parts.Last();
+            int argIndex = parts.Length - 2;
+
+            if (!CommandManager.TryGetCommand(parts[0], out Command command)) return false;
+            argument = command.arguments[argIndex];
+            if (argument.options.Count == 0) return false;
+            if (argument.options.Contains(argumentInput)) return false;
+
+            return true;
         }
     }
 }
