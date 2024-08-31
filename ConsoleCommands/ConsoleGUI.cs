@@ -226,7 +226,7 @@ namespace ConsoleCommands
                 content += $"• {argument.name}\n  • Description: {argument.description}\n";
                 
                 if (argument.options.Count > 0) {
-                    bool joinOptions = command.name == "give" || command.name == "remove" || command.name == "unlock";
+                    bool joinOptions = command.name != "Give" && command.name != "Remove" && command.name != "Unlock" && command.name != "Bind";
                     string options = joinOptions ? string.Join(", ", argument.options) : "Too many to list, check mod page for full list";
                     content += $"  • Options: {options}\n";
                 }

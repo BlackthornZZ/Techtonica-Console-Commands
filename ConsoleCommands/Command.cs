@@ -1,9 +1,11 @@
 ﻿using FIMSpace.Graph;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine;
 
 namespace ConsoleCommands
 {
@@ -150,6 +152,33 @@ namespace ConsoleCommands
         public int MaxArguments() {
             return arguments.Count;
         }
+
+        public void LogDocumentation() {
+            Debug.Log($"Documentation for Command '{name}':\n\n{GenerateDocumentation()}\n\n");
+        }
+
+        public string GenerateDocumentation() {
+            string markup = $"#### {name}\n\n{description}\n\n";
+            if(arguments.Count > 0) {
+                bool joinOptions = name != "Give" && name != "Remove" && name != "Unlock" && name != "Bind";
+
+                markup += "Arguments:\n\n";
+                foreach(Argument argument in arguments) {
+                    markup += $"{argument.GenerateDocumentation(joinOptions)}\n\n";
+                }
+            }
+
+            if(examples.Count > 0) {
+                markup += $"Examples:\n\n";
+                foreach (string example in examples) {
+                    markup += $"- `{example}`\n";
+                }
+            }
+
+            if(markup.EndsWith("\n")) markup = markup.Substring(0, markup.Length - 1);
+
+            return markup;
+        }
     }
 
     public class Argument {
@@ -158,5 +187,29 @@ namespace ConsoleCommands
         public List<string> options = new List<string>();
         public bool optional;
         public Type type;
+
+        internal string GenerateDocumentation(bool joinOptions) {
+            string markup = $"- {name}\n  - Description: {description}\n";
+            if(options.Count > 0) {
+                string optionsList = joinOptions ? string.Join(", ", options) : "**INSERT LINK TO OPTIONS**";
+                markup += $"  - Options: {optionsList}\n";
+            }
+
+            string optionalText = optional ? "Yes" : "No";
+            markup += $"  - Type: {GetPrettyType(type)}\n  - Optional: {optionalText}";
+
+            return markup;
+        }
+
+        private static string GetPrettyType(Type type) {
+            if (type == typeof(string)) return "String";
+            if (type == typeof(uint)) return "Positive Integer";
+            if (type == typeof(int)) return "Interger";
+            if (type == typeof(float)) return "Decimal Number";
+            if (type == typeof(bool)) return "Bool";
+            if (type == typeof(KeyCode)) return "Key Code";
+
+            return type.ToString();
+        }
     }
 }
