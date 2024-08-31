@@ -8,17 +8,6 @@ using System.Threading.Tasks;
 namespace ConsoleCommands
 {
     internal static partial class Commands {
-        private static List<string> validParameters = new List<string>() {
-            "maxrunspeed",
-            "maxwalkspeed",
-            "maxflyspeed",
-            "jumpspeed",
-            "scanspeed",
-            "gravity",
-            "maxflyheight",
-            "railrunnerspeed"
-        };
-
         internal static Command setPlayerParam = new Command() {
             name = "Set Player Param",
             description = "Sets various parameters for the player controller",
@@ -29,7 +18,17 @@ namespace ConsoleCommands
             arguments = new List<Argument>() {
                 new Argument() {
                     name = "Parameter",
-                    description = $"One of: {string.Join(", ", validParameters)}",
+                    description = "The parameter to set",
+                    options = new List<string>() {
+                        "maxrunspeed",
+                        "maxwalkspeed",
+                        "maxflyspeed",
+                        "jumpspeed",
+                        "scanspeed",
+                        "gravity",
+                        "maxflyheight",
+                        "railrunnerspeed"
+                    },
                     type = typeof(string),
                     optional = false
                 },
@@ -42,13 +41,7 @@ namespace ConsoleCommands
             },
             Validate = () => {
                 if (!setPlayerParam.ValidateNumProvidedArguments(2)) return false;
-
-                string parameter = setPlayerParam.argumentValues[0];
-                if (!validParameters.Contains(parameter)) {
-                    setPlayerParam.validationError = $"Unknown parameter: {parameter}";
-                    return false;
-                }
-
+                if (!setPlayerParam.ValidateOptionsBasedArgument(0)) return false;
                 if (!setPlayerParam.ValidateFloatArgument(1)) return false;
 
                 return true;

@@ -36,12 +36,7 @@ namespace ConsoleCommands
             },
             Validate = () => {
                 if (!give.ValidateNumProvidedArguments(1, 2)) return false;
-
-                string itemName = FormatItemName(give.argumentValues[0]);
-                if (itemName != "all" && !itemsCache.ContainsKey(itemName)) {
-                    give.validationError = $"Unknown item '{itemName}'";
-                    return false;
-                }
+                if (!give.ValidateOptionsBasedArgument(0)) return false;
 
                 // Don't check the count argument if it wasn't provided
                 if (give.NumProvidedArguments() == 1) return true;
@@ -76,6 +71,11 @@ namespace ConsoleCommands
                 ResourceInfo item = ModUtils.GetResourceInfoByName(name);
                 if (item != null) itemsCache.Add(FormatItemName(name), item);
             }
+
+            List<string> names = itemsCache.Keys.ToList();
+            names.Insert(0, "all");
+            give.arguments[0].options = names;
+            remove.arguments[0].options = names;
         }
 
         private static string FormatItemName(string name) {

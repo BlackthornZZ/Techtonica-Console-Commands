@@ -18,7 +18,7 @@ namespace ConsoleCommands
             arguments = new List<Argument>() {
                 new Argument() {
                     name = "Should Save",
-                    description = "Whether the game should be saved before quitting.",
+                    description = "Whether the game should be saved before quitting",
                     type = typeof(bool),
                     optional = true
                 }

@@ -8,13 +8,6 @@ using System.Threading.Tasks;
 namespace ConsoleCommands
 {
     internal static partial class Commands {
-        private static List<string> levels = new List<string>() {
-            "info",
-            "warning",
-            "error",
-            "fatal"
-        };
-
         internal static Command echo = new Command() {
             name = "Echo",
             description = "Writes the given text to the console and logs it",
@@ -25,7 +18,13 @@ namespace ConsoleCommands
             arguments = new List<Argument>() {
                 new Argument() {
                     name = "Level",
-                    description = $"Level of the message. One of: {string.Join(", ", levels)}",
+                    description = "Level of the message",
+                    options = new List<string>() {
+                        "info",
+                        "warning",
+                        "error",
+                        "fatal"
+                    },
                     type = typeof(string),
                     optional = true
                 }
@@ -35,7 +34,7 @@ namespace ConsoleCommands
             },
             Execute = () => {
                 string level = "info";
-                if (levels.Contains(echo.argumentValues[0])) {
+                if (echo.arguments[0].options.Contains(echo.argumentValues[0])) {
                     level = echo.argumentValues[0];
                     echo.argumentValues = echo.argumentValues.RemoveAt(0);
                 }

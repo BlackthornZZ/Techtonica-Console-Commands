@@ -131,6 +131,22 @@ namespace ConsoleCommands
             return true;
         }
 
+        public bool ValidateOptionsBasedArgument(int index) {
+            Argument argument = arguments[index];
+            if(argument.options.Count == 0) {
+                CommandManager.Notify($"Command error in '{name}'. Please notify the developer.");
+                ConsoleCommandsPlugin.Log.LogError($"ValidateOptionsBasedArgument() was called on argument '{argument.name}' which has no options");
+                return true;
+            }
+
+            if (!argument.options.Contains(argumentValues[index])) {
+                validationError = $"'{argumentValues[index]}' is not a valid value for argument '{argument.name}'";
+                return false;
+            }
+
+            return true;
+        }
+
         public int MaxArguments() {
             return arguments.Count;
         }
@@ -139,6 +155,7 @@ namespace ConsoleCommands
     public class Argument {
         public string name;
         public string description;
+        public List<string> options = new List<string>();
         public bool optional;
         public Type type;
     }

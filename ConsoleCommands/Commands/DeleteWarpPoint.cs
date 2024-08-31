@@ -24,20 +24,21 @@ namespace ConsoleCommands
                 }
             },
             Validate = () => {
-                if (!saveWarpPoint.ValidateNumProvidedArguments(1)) return false;
-                
-                string name = saveWarpPoint.argumentValues[0];
+                if (!deleteWarpPoint.ValidateNumProvidedArguments(1)) return false;
+
+                // Avoiding ValidateOptionsBasedArgument() for the more detailed error message
+                string name = deleteWarpPoint.argumentValues[0];
                 if (!WarpManager.GetWarpPoint(name, out Vector3 point, out string error)) {
-                    saveWarpPoint.validationError = $"There is no saved Warp Point called '{name}'";
+                    deleteWarpPoint.validationError = $"There is no saved Warp Point called '{name}'";
                     return false;
                 }
 
                 return true;
             },
             Execute = () => {
-                string name = saveWarpPoint.argumentValues.First();
-                if (saveWarpPoint.NumProvidedArguments() > 1) {
-                    name = string.Join(" ", saveWarpPoint.argumentValues);
+                string name = deleteWarpPoint.argumentValues.First();
+                if (deleteWarpPoint.NumProvidedArguments() > 1) {
+                    name = string.Join(" ", deleteWarpPoint.argumentValues);
                 }
 
                 if(WarpManager.DeleteWarpPoint(name, out string error)) {

@@ -75,6 +75,10 @@ namespace ConsoleCommands
                 string name = LocsUtility.TranslateStringFromHash(unlock.displayNameHash);
                 unlocksCache.Add(FormatUnlockName(name), unlock.uniqueId);
             }
+
+            List<string> names = unlocksCache.Keys.ToList();
+            names.Insert(0, "all");
+            unlock.arguments[0].options = names;
         }
 
         private static string FormatUnlockName(string name) {
